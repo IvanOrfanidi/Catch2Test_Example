@@ -1,0 +1,53 @@
+stages:
+  - build
+  - tests
+
+gcc:
+  stage: build
+  script:
+    - mkdir build
+    - cd build
+    - git submodule init
+    - git submodule update
+    - cmake -G "Unix Makefiles"
+      -DCMAKE_C_COMPILER=gcc
+      -DCMAKE_CXX_COMPILER=g++
+      -DCMAKE_BUILD_TYPE=Release
+      -DBUILD_UNIT_TESTS=ON
+      ..
+    - cmake --build . -j4
+  artifacts:
+    paths:
+      - build/main_tests
+
+clang:
+  stage: build
+  script:
+    - mkdir build
+    - cd build
+    - git submodule init
+    - git submodule update
+    - cmake -G "Unix Makefiles"
+      -DCMAKE_C_COMPILER=clang
+      -DCMAKE_CXX_COMPILER=clang++
+      -DCMAKE_BUILD_TYPE=Release
+      -DBUILD_UNIT_TESTS=ON
+      ..
+    - cmake --build . -j4
+  artifacts:
+    paths:
+      - build/main_tests
+
+unit-tests-gcc:
+  stage: tests
+  dependencies:
+    - gcc
+  script:
+    - ./build/main_tests
+
+unit-tests-clang:
+  stage: tests
+  dependencies:
+    - clang
+  script:
+    - ./build/main_tests
